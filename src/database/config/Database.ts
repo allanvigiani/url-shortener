@@ -3,6 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Extende o tipo globalThis com uma nova propriedade customizada
+declare global {
+    var databaseConnection: Pool | undefined;
+}
+
 class Database {
     private async configureConnection(): Promise<Pool> {
         if (!globalThis.databaseConnection) {
@@ -29,4 +34,3 @@ class Database {
 
 const database = new Database();
 export default database;
-

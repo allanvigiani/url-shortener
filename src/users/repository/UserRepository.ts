@@ -1,32 +1,34 @@
-// import { database } from './database';
+import { Hash } from 'crypto';
+import database from '../../database/config/Database';
 
 interface IUser {
     id?: string;
-    name: string;
     email: string;
     password?: string;
-    address?: string;
-    contact_phone?: string;
-    cpf?: string;
     created_at?: Date;
+    updated_at?: Date;
+    deleted_at?: Date;
 }
 
 class UserRepository {
 
-    async createUser(data: IUser): Promise<IUser> {
-        // const { name, email, password, address, contact_phone, created_at } = data;
+    async createUser(email: string, hash: string): Promise<IUser> {
 
-        // const conn = await database.generateConnection();
+        const conn = await database.generateConnection();
 
-        // const result = await conn.query(`
-        //     INSERT INTO users (name, email, password, address, contact_phone, created_at)
-        //     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
-        // `, [name, email, password, address, contact_phone, created_at]);
+        const result = await conn.query(`
+            INSERT INTO users (email, password)
+            VALUES ($1, $2) RETURNING id;
+        `, [email, hash]);
 
-        // return result.rows[0];
-        return data;
+        return result.rows[0];
     }
 
+    async findUserByEmail(email: string): Promise<IUser> {
+        const conn = await database.generateConnection();
+        const result = await conn.query('SELECT * FROM users WHERE email = $1', [email]);
+        return result.rows[0];
+    }
 }
 
 export default UserRepository;
