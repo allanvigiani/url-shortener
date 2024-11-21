@@ -2,6 +2,18 @@ import { Request, Response } from 'express';
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcryptjs';
 import UserRepository from '../repository/UserRepository';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+interface IRequest {
+	body: { email: any; password: any; };
+    params: { user_id: any; };
+    user: {
+        payload: any;
+        id: string;
+    }
+}
 
 export class UserController {
 	private userRepository: UserRepository;
@@ -26,11 +38,10 @@ export class UserController {
 		try {
 			const { email, password } = req.body;
 
-			const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-			if (!regexEmail.test(email)) {
-				res.status(400).json({ error: 'Email não é válido.' });
-				return;
-			}
+            if (email && await !this.isValidEmail(email)) {
+                res.status(400).json({ error: 'Email fornecido não é válido.' });
+                return;
+            }
 
 			const userExists = await this.userRepository.findUserByEmail(email);
 			if (userExists) {
@@ -55,25 +66,56 @@ export class UserController {
 		}
 	}
 
-	public async updateUser(req: Request, res: Response): Promise<void> {
-		// try {
-		//   const userId = req.params.id;
-		//   const updatedUser = await this.userRepository.updateUser(userId, req.body);
-		//   res.json(updatedUser);
-		// } catch (error) {
-		//   res.status(500).json({ error: 'Erro ao atualizar usuário' });
-		// }
-	}
+	public async updatePassword(req: IRequest, res: Response): Promise<void> {
+        try {
+            const { user_id: userId } = req.params;
+            const { password } = req.body;
+            const tokenUserId = req.user?.payload?.id;
 
-	public async deleteUser(req: Request, res: Response): Promise<void> {
-		// try {
-		//   const userId = req.params.id;
-		//   await this.userRepository.deleteUser(userId);
-		//   res.status(204).send();
-		// } catch (error) {
-		//   res.status(500).json({ error: 'Erro ao deletar usuário' });
-		// }
-	}
+            if (!password) {
+                res.status(400).json({ error: 'Nova senha não foi passada.' });
+                return;
+            }
+
+            if (!tokenUserId || !(await this.isAuthorizedUser(tokenUserId, userId))) {
+                res.status(403).json({ error: 'Você não tem permissão para atualizar este usuário.' });
+                return;
+            }
+
+            const hashedPassword: string = await bcryptHash(password, this.saltRandsPassword);
+
+            await this.userRepository.updateUserById(userId, hashedPassword);
+
+            res.status(200).json({ message: 'Usuário atualizado com sucesso!' });
+        } catch (error: any) {
+            console.error('Erro ao atualizar usuário:', error);
+            res.status(500).json({ error: 'Erro interno do servidor ao atualizar o usuário.' });
+        }
+    }
+
+    public async deleteUser(req: IRequest, res: Response): Promise<void> {
+        try {
+
+            const { user_id: userId } = req.params;
+			const tokenUserId = req.user?.payload?.id;
+
+            if (!userId) {
+                res.status(400).json({ error: 'Não foi passado o ID do usuário.' });
+                return;
+            }
+
+            if (!tokenUserId || !(await this.isAuthorizedUser(tokenUserId, userId))) {
+                res.status(403).json({ error: 'Você não tem permissão para atualizar este usuário.' });
+                return;
+            }
+
+            await this.userRepository.deleteUserById(userId);
+
+            res.status(200).json({ message: 'Usuário deletada com sucesso!' });
+        } catch (error: any) {
+            res.status(500).json({ error: `Erro ao deletar usuário, ${error.message}` });
+        }
+    }
 
 	async login(req: Request, res: Response): Promise<void> {
         try {
@@ -111,6 +153,16 @@ export class UserController {
         } catch (error: any) {
 			res.status(500).json({ error: `Erro ao realizar login, ${error.message}` });
         }
+    }
+
+	private async isAuthorizedUser(tokenUserId: string, targetUserId: string): Promise<boolean> {
+        const user = await this.userRepository.findUserById(tokenUserId);
+        return !!user && user.id === targetUserId;
+    }
+
+    private async isValidEmail(email: string): Promise<boolean> {
+        const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        return regexEmail.test(email);
     }
 
 }

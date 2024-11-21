@@ -16,11 +16,11 @@ router.post('/', (req, res, next) => {
     userController.createUser(req, res);
 });
 
-router.put('/:id', validateToken, (req, res, next) => {
-    userController.updateUser(req, res);
+router.put('/:user_id', validateToken, (req, res, next) => {
+    userController.updatePassword(req, res);
 });
 
-router.delete('/:id', validateToken, (req, res, next) => {
+router.delete('/:user_id', validateToken, (req, res, next) => {
     userController.deleteUser(req, res);
 });
 

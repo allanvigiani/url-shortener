@@ -152,6 +152,11 @@ export class UrlController {
                 return;
             }
 
+            if (!originalUrl) {
+                res.status(400).json({ error: 'URL original é obrigatória.' });
+                return;
+            }
+
             const userId = req.user?.payload?.id;
 
             const isTheUser = await this.urlRepository.findByUrlById(urlId);
