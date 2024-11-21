@@ -1,5 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import 'express';
 
 const validateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authorizationHeader = req.headers.authorization;
@@ -24,9 +25,9 @@ const validateToken = async (req: Request, res: Response, next: NextFunction): P
       return;
     }
 
-    req.user = decodedToken;
+    (req as any).user = decodedToken; // TODO BUSCAR TRATATIVA PARA O PROBLEMA req.user = decodedToken
 
-  } catch (error) {
+  } catch (error: any) {
     if (error.name === "TokenExpiredError") {
       res.status(401).json({ error: 'Token expirado' });
     } else {
