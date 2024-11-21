@@ -8,11 +8,24 @@ const userController = new UserController(userRepository);
 
 const router = Router();
 
-router.get('/:id', validateToken, userController.getUser.bind(userController));
-router.post('/', userController.createUser.bind(userController));
-router.put('/:id', validateToken, userController.updateUser.bind(userController));
-router.delete('/:id', validateToken, userController.deleteUser.bind(userController));
+router.get('/:id', validateToken, (req, res, next) => {
+    userController.getUser(req, res);
+});
 
-router.post('/login', userController.login.bind(userController));
+router.post('/', (req, res, next) => {
+    userController.createUser(req, res);
+});
+
+router.put('/:id', validateToken, (req, res, next) => {
+    userController.updateUser(req, res);
+});
+
+router.delete('/:id', validateToken, (req, res, next) => {
+    userController.deleteUser(req, res);
+});
+
+router.post('/login', (req, res, next) => {
+    userController.login(req, res);
+});
 
 export default router;
