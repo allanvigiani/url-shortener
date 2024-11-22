@@ -16,7 +16,12 @@
 
 ### Modelagem do banco de dados.
 
-![Modelagem](image.png)
+![Modelagem](./extras/image.png)
+
+## Collections.
+
+* O projeto está disponível na AWS, tendo isso em vista, estarei disponibilizando a collection onde está as urls localhost e AWS.
+[Collection JSON](./extras/collection.json)
 
 ## Como rodar o projeto.
 
