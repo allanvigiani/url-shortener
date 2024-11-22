@@ -1,0 +1,511 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "API de Encurtador de URL",
+        "description": "Documentação das APIs relacionadas à gestão de usuários e encurtamento de URLs.",
+        "version": "1.1.0",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "email": "vigianiallan@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Servidor para gestão de usuários"
+        },
+        {
+            "url": "http://localhost:3001",
+            "description": "Servidor para encurtamento de URLs"
+        }
+    ],
+    "paths": {
+        "/:id": {
+            "get": {
+                "tags": ["User"],
+                "summary": "Busca informações de um usuário pelo ID.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID do usuário",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário encontrado com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID inválido ou não fornecido."
+                    },
+                    "500": {
+                        "description": "Erro ao buscar usuário."
+                    }
+                }
+            }
+        },
+        "/": {
+            "post": {
+                "tags": ["User"],
+                "summary": "Cria um novo usuário.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUser"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado com sucesso."
+                    },
+                    "400": {
+                        "description": "Dados inválidos ou usuário já cadastrado."
+                    },
+                    "500": {
+                        "description": "Erro ao criar usuário."
+                    }
+                }
+            }
+        },
+        "/{user_id}": {
+            "put": {
+                "tags": ["User"],
+                "summary": "Atualiza a senha do usuário.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID do usuário a ser atualizado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePassword"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Senha atualizada com sucesso."
+                    },
+                    "400": {
+                        "description": "Senha inválida ou não fornecida."
+                    },
+                    "403": {
+                        "description": "Usuário não autorizado a atualizar esta conta."
+                    },
+                    "500": {
+                        "description": "Erro ao atualizar usuário."
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["User"],
+                "summary": "Deleta um usuário pelo ID.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID do usuário a ser deletado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário deletado com sucesso."
+                    },
+                    "400": {
+                        "description": "ID não fornecido."
+                    },
+                    "403": {
+                        "description": "Usuário não autorizado a deletar esta conta."
+                    },
+                    "500": {
+                        "description": "Erro ao deletar usuário."
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Realiza login do usuário.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Email ou senha incorretos."
+                    },
+                    "500": {
+                        "description": "Erro ao realizar login."
+                    }
+                }
+            }
+        },
+        "/shortener": {
+            "post": {
+                "tags": ["URL"],
+                "summary": "Cria uma URL encurtada.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUrl"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "URL encurtada criada com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateUrlResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "URL inválida."
+                    },
+                    "500": {
+                        "description": "Erro ao criar URL encurtada."
+                    }
+                }
+            }
+        },
+        "/{shortened_code}": {
+            "get": {
+                "tags": ["URL"],
+                "summary": "Redireciona uma URL encurtada para o endereço original.",
+                "parameters": [
+                    {
+                        "name": "shortened_code",
+                        "in": "path",
+                        "required": true,
+                        "description": "Código encurtado da URL.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirecionamento para a URL original."
+                    },
+                    "404": {
+                        "description": "URL não encontrada ou deletada."
+                    },
+                    "500": {
+                        "description": "Erro ao redirecionar URL."
+                    }
+                }
+            }
+        },
+        "/list/urls": {
+            "get": {
+                "tags": ["URL"],
+                "summary": "Lista todas as URLs encurtadas do usuário.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de URLs encurtadas recuperada com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListUrlsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhuma URL encontrada."
+                    },
+                    "500": {
+                        "description": "Erro ao buscar URLs."
+                    }
+                }
+            }
+        },
+        "/{url_id}": {
+            "delete": {
+                "tags": ["URL"],
+                "summary": "Deleta uma URL encurtada.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "url_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID da URL a ser deletada.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "URL deletada com sucesso."
+                    },
+                    "403": {
+                        "description": "Usuário não autorizado a deletar esta URL."
+                    },
+                    "500": {
+                        "description": "Erro ao deletar URL."
+                    }
+                }
+            },
+            "put": {
+                "tags": ["URL"],
+                "summary": "Atualiza a URL original de uma URL encurtada.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "url_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID da URL a ser atualizada.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUrl"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "URL atualizada com sucesso."
+                    },
+                    "400": {
+                        "description": "URL original inválida."
+                    },
+                    "403": {
+                        "description": "Usuário não autorizado a editar esta URL."
+                    },
+                    "500": {
+                        "description": "Erro ao atualizar URL."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "1"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "teste@gmail.com"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Nome do Usuário"
+                    }
+                }
+            },
+            "CreateUser": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "teste@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "123456"
+                    }
+                }
+            },
+            "UpdatePassword": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "example": "novaSenha123"
+                    }
+                }
+            },
+            "Login": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "teste@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "123456"
+                    }
+                }
+            },
+            "LoginResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Login realizado com sucesso!"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "teste@gmail.com"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "eyJhbGciOi..."
+                    }
+                }
+            },
+            "CreateUrl": {
+                "type": "object",
+                "properties": {
+                    "original_url": {
+                        "type": "string",
+                        "example": "https://www.google.com"
+                    }
+                }
+            },
+            "CreateUrlResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Url encurtada com sucesso!"
+                    },
+                    "original_url": {
+                        "type": "string",
+                        "example": "https://www.google.com"
+                    },
+                    "short_url": {
+                        "type": "string",
+                        "example": "http://localhost:3001/url/abc123"
+                    }
+                }
+            },
+            "ListUrlsResponse": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "example": "1"
+                        },
+                        "original_url": {
+                            "type": "string",
+                            "example": "https://www.google.com"
+                        },
+                        "shortened_url": {
+                            "type": "string",
+                            "example": "http://localhost:3001/url/abc123"
+                        },
+                        "clicks": {
+                            "type": "integer",
+                            "example": 42
+                        }
+                    }
+                }
+            },
+            "UpdateUrl": {
+                "type": "object",
+                "properties": {
+                    "original_url": {
+                        "type": "string",
+                        "example": "https://www.google.com"
+                    }
+                }
+            }
+        }
+    }
+}

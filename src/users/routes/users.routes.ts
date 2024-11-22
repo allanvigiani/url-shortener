@@ -17,11 +17,11 @@ router.post('/', (req, res, next) => {
 });
 
 router.put('/:user_id', validateToken, (req, res, next) => {
-    userController.updatePassword(req, res);
+    userController.updatePassword(req as any, res);
 });
 
 router.delete('/:user_id', validateToken, (req, res, next) => {
-    userController.deleteUser(req, res);
+    userController.deleteUser(req as any, res);
 });
 
 router.post('/login', (req, res, next) => {
