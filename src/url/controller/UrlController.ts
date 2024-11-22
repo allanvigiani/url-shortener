@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { UrlRepository } from '../repository/UrlRepository';
-import dotenv from 'dotenv';
 import { IRequest } from '../../models/Request';
+import dotenv from 'dotenv';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ export class UrlController {
                 return;
             }
 
-            const shortCode = this.generateShortUrl();
+            const shortCode = await this.generateShortUrl();
 
             let userId: number | null = null;
 
@@ -158,7 +159,7 @@ export class UrlController {
             const userId = req.user?.payload?.id;
 
             const isTheUser = await this.urlRepository.findByUrlById(urlId);
-            if (!isTheUser || isTheUser?.user_id !== userId) {
+            if (!isTheUser || isTheUser?.user_id != userId) {
                 res.status(403).json({ error: 'Não é possível editar essa Url.' });
                 return;
             }
@@ -172,9 +173,15 @@ export class UrlController {
         }
     }
 
-    private generateShortUrl(): string {
-        const shortCode = Math.random().toString(36).substring(2, 8);
-        return `${shortCode}`;
+    private async generateShortUrl(): Promise<string> {
+        while (true) {
+            const shortCode = crypto.randomBytes(6).toString('base64').substring(0, 6).replace(/[^a-zA-Z0-9]/g, '');
+            const exists = await this.urlRepository.findByShortCode(shortCode);
+    
+            if (!exists) {
+                return shortCode;
+            }
+        }
     }
 
 }

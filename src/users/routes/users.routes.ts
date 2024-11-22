@@ -9,9 +9,9 @@ const userController = new UserController(userRepository);
 
 const router = Router();
 
-router.get('/:id', validateToken, (req, res, next) => {
-    userController.getUser(req, res);
-});
+// router.get('/:id', validateToken, (req, res, next) => {
+//     userController.getUser(req as IRequest, res);
+// });
 
 router.post('/', (req, res, next) => {
     userController.createUser(req, res);

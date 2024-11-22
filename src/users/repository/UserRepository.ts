@@ -17,16 +17,15 @@ export class UserRepository {
 
     async findUserByEmail(email: string): Promise<IUser | null> {
         const conn = await database.generateConnection();
-        const result = await conn.query('SELECT * FROM users WHERE email = $1', [email]);
+        const result = await conn.query('SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL', [email]);
         return result.rows[0];
     }
 
     async findUserById(id: string): Promise<IUser> {
         const conn = await database.generateConnection();
-        const result = await conn.query('SELECT * FROM users WHERE id = $1', [id]);
+        const result = await conn.query('SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL', [id]);
         return result.rows[0];
     }
-
 
     async deleteUserById( id: string ): Promise<IUser | boolean> {
         const conn = await database.generateConnection();

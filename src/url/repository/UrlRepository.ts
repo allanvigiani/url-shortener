@@ -38,7 +38,7 @@ export class UrlRepository {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
-            SELECT id, shortened_code AS shortened_url, clicks FROM urls WHERE user_id = $1 AND deleted_at IS NULL;
+            SELECT id, original_url, shortened_code AS shortened_url, clicks FROM urls WHERE user_id = $1 AND deleted_at IS NULL;
         `, [user_id]);
 
         return result.rows;

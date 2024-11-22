@@ -25,10 +25,10 @@ const optionalValidateToken = async (req: IRequest, res: Response, next: NextFun
             req.user = undefined;
         } else {
             req.user = {
-                id: decodedToken.id as string,
+                id: decodedToken.payload?.id as string,
                 payload: {
-                    id: decodedToken.id as string,
-                    email: decodedToken.email as string,
+                    id: decodedToken.payload?.id as string,
+                    email: decodedToken.payload?.email as string,
                 },
             };
         }

@@ -154,7 +154,7 @@ export class UserController {
 
 	private async isAuthorizedUser(tokenUserId: string, targetUserId: string): Promise<boolean> {
         const user = await this.userRepository.findUserById(tokenUserId);
-        return !!user && user.id === String(targetUserId);
+        return !!user && user.id == String(targetUserId);
     }
 
     private async isValidEmail(email: string): Promise<boolean> {
