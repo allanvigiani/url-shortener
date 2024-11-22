@@ -1,8 +1,8 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
-import 'express';
+import { Response, NextFunction } from 'express';
+import { IRequest } from '../models/Request';
 
-const validateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const validateToken = async (req: IRequest, res: Response, next: NextFunction): Promise<void> => {
   const authorizationHeader = req.headers.authorization;
 
   if (!authorizationHeader) {
@@ -25,10 +25,15 @@ const validateToken = async (req: Request, res: Response, next: NextFunction): P
       return;
     }
 
-    (req as any).user = decodedToken; // TODO BUSCAR TRATATIVA PARA O PROBLEMA req.user = decodedToken
-
+    req.user = {
+      id: decodedToken.id as string,
+      payload: {
+        id: decodedToken.id as string,
+        email: decodedToken.email as string,
+      },
+    };
   } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
+    if (error.name === 'TokenExpiredError') {
       res.status(401).json({ error: 'Token expirado' });
     } else {
       res.status(401).json({ error: 'Token inválido' });
