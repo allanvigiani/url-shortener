@@ -1,17 +1,9 @@
 import database from '../../database/config/Database';
+import { IUser } from '../../models/User';
 
-interface IUser {
-    id: string;
-    email: string;
-    password: string;
-    created_at?: Date;
-    updated_at?: Date;
-    deleted_at?: Date;
-}
+export class UserRepository {
 
-class UserRepository {
-
-    async createUser(email: string, hash: string): Promise<IUser> {
+    async createUser(email: string, hash: string): Promise<IUser | boolean> {
 
         const conn = await database.generateConnection();
 
@@ -23,7 +15,7 @@ class UserRepository {
         return result.rows[0];
     }
 
-    async findUserByEmail(email: string): Promise<IUser> {
+    async findUserByEmail(email: string): Promise<IUser | null> {
         const conn = await database.generateConnection();
         const result = await conn.query('SELECT * FROM users WHERE email = $1', [email]);
         return result.rows[0];
@@ -36,7 +28,7 @@ class UserRepository {
     }
 
 
-    async deleteUserById( id: string ): Promise<IUser> {
+    async deleteUserById( id: string ): Promise<IUser | boolean> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -46,7 +38,7 @@ class UserRepository {
         return result.rows[0];
     }
 
-    async updateUserById( id: string, password: string ): Promise<IUser> {
+    async updateUserById( id: string, password: string ): Promise<IUser | boolean> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -57,4 +49,3 @@ class UserRepository {
     }
 }
 
-export default UserRepository;

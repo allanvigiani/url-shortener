@@ -1,19 +1,9 @@
 import { Request, Response } from 'express';
-import UrlRepository from '../repository/UrlRepository';
+import { UrlRepository } from '../repository/UrlRepository';
 import dotenv from 'dotenv';
+import { IRequest } from '../../models/Request';
 
 dotenv.config();
-
-interface IRequest {
-    params: { url_id: any; };
-    body: {
-        original_url: string;
-    }
-    user: {
-        payload: any;
-        id: string;
-    }
-}
 
 export class UrlController {
     private urlRepository: UrlRepository;
@@ -26,7 +16,7 @@ export class UrlController {
 
     public async createUrl(req: IRequest, res: Response): Promise<void> {
         try {
-            const { original_url: originalUrl } = req?.body;
+            const { original_url: originalUrl } = req.body;
 
             const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-]*)*\/?$/;
             if (!originalUrl || !urlRegex.test(originalUrl)) {
@@ -36,7 +26,7 @@ export class UrlController {
 
             const shortCode = this.generateShortUrl();
 
-            let userId: string | null = null;
+            let userId: number | null = null;
 
             if (req?.user) {
                 const user = req?.user;
@@ -58,8 +48,9 @@ export class UrlController {
                 original_url: originalUrl,
                 short_url: `${this.baseUrl}/${shortCode}`,
             });
-        } catch (error: any) {
-            res.status(500).json({ error: `Erro ao criar url encurtada, ${error.message}` });
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao criar url encurtada, ${errorMessage}` });
         }
     }
 
@@ -79,19 +70,24 @@ export class UrlController {
                 return;
             }
 
-            const clicks = urlData.clicks + 1;
-            await this.urlRepository.updateClicks(urlData?.id, clicks);
+            const clicks = (urlData.clicks ?? 0) + 1;
+            await this.urlRepository.updateClicks(Number(urlData?.id), clicks);
 
-            res.redirect(urlData.original_url);
-        } catch (error: any) {
-            res.status(500).json({ error: `Erro ao redirecionar usuário, ${error.message}` });
+            if (urlData.original_url) {
+                res.redirect(urlData.original_url);
+            } else {
+                res.status(500).json({ error: 'URL original não encontrada.' });
+            }
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao redirecionar usuário, ${errorMessage}` });
         }
     }
 
     public async listAllUrlsByUser(req: IRequest, res: Response): Promise<void> {
         try {
 
-            const userId = (req.user as any)?.payload?.id;
+            const userId = req.user?.payload?.id;
 
             if (!userId) {
                 res.status(400).json({ error: 'Usuário indisponível.' });
@@ -110,8 +106,9 @@ export class UrlController {
             }));
 
             res.status(200).json({ informations: newUrlList });
-        } catch (error: any) {
-            res.status(500).json({ error: `Erro ao buscar Urls do usuário, ${error.message}` });
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao buscar Urls do usuário, ${errorMessage}` });
         }
     }
 
@@ -136,8 +133,9 @@ export class UrlController {
             await this.urlRepository.deleteUrlById(urlId);
 
             res.status(200).json({ message: 'Url deletada com sucesso!' });
-        } catch (error: any) {
-            res.status(500).json({ error: `Erro ao deletar Url, ${error.message}` });
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao deletar Url, ${errorMessage}` });
         }
     }
 
@@ -168,8 +166,9 @@ export class UrlController {
             await this.urlRepository.updateUrl(urlId, originalUrl);
 
             res.status(200).json({ message: 'Url atualizado com sucesso!' });
-        } catch (error: any) {
-            res.status(500).json({ error: `Erro ao atualizar Url, ${error.message}` });
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao atualizar Url, ${errorMessage}` });
         }
     }
 

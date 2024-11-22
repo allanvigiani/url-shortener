@@ -1,19 +1,11 @@
 import { Request, Response } from 'express';
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcryptjs';
-import UserRepository from '../repository/UserRepository';
+import { UserRepository } from '../repository/UserRepository';
 import jwt from 'jsonwebtoken';
+import { IRequest } from '../../models/Request';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
-interface IRequest {
-	body: { email: any; password: any; };
-    params: { user_id: any; };
-    user: {
-        payload: any;
-        id: string;
-    }
-}
 
 export class UserController {
 	private userRepository: UserRepository;
@@ -38,7 +30,8 @@ export class UserController {
 		try {
 			const { email, password } = req.body;
 
-            if (email && await !this.isValidEmail(email)) {
+            const isValidEmail = await this.isValidEmail(email);
+            if (!isValidEmail) {
                 res.status(400).json({ error: 'Email fornecido não é válido.' });
                 return;
             }
@@ -61,8 +54,9 @@ export class UserController {
 			res.status(201).json({
 				message: 'Usuário criado com sucesso!'
 			});
-		} catch (error: any) {
-			res.status(500).json({ error: `Erro ao criar usuário, ${error.message}` });
+		} catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao criar usuário, ${errorMessage}` });
 		}
 	}
 
@@ -77,18 +71,19 @@ export class UserController {
                 return;
             }
 
-            if (!tokenUserId || !(await this.isAuthorizedUser(tokenUserId, userId))) {
+            if (!tokenUserId || !(await this.isAuthorizedUser(tokenUserId, String(userId)))) {
                 res.status(403).json({ error: 'Você não tem permissão para atualizar este usuário.' });
                 return;
             }
 
             const hashedPassword: string = await bcryptHash(password, this.saltRandsPassword);
 
-            await this.userRepository.updateUserById(userId, hashedPassword);
+            await this.userRepository.updateUserById(String(userId), hashedPassword);
 
             res.status(200).json({ message: 'Usuário atualizado com sucesso!' });
-        } catch (error: any) {
-            console.error('Erro ao atualizar usuário:', error);
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            console.error('Erro ao atualizar usuário:', errorMessage);
             res.status(500).json({ error: 'Erro interno do servidor ao atualizar o usuário.' });
         }
     }
@@ -112,8 +107,9 @@ export class UserController {
             await this.userRepository.deleteUserById(userId);
 
             res.status(200).json({ message: 'Usuário deletada com sucesso!' });
-        } catch (error: any) {
-            res.status(500).json({ error: `Erro ao deletar usuário, ${error.message}` });
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao deletar usuário, ${errorMessage}` });
         }
     }
 
@@ -150,14 +146,15 @@ export class UserController {
 				email: user.email,
                 token: token
 			});
-        } catch (error: any) {
-			res.status(500).json({ error: `Erro ao realizar login, ${error.message}` });
+        } catch (error: unknown) {
+            const errorMessage = (error as Error).message;
+            res.status(500).json({ error: `Erro ao realizar login, ${errorMessage}` });
         }
     }
 
 	private async isAuthorizedUser(tokenUserId: string, targetUserId: string): Promise<boolean> {
         const user = await this.userRepository.findUserById(tokenUserId);
-        return !!user && user.id === targetUserId;
+        return !!user && user.id === String(targetUserId);
     }
 
     private async isValidEmail(email: string): Promise<boolean> {

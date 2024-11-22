@@ -1,20 +1,9 @@
 import database from '../../database/config/Database';
+import { IUrl } from '../../models/Url';
 
-interface IUrl {
-    shortened_url: any;
-    id: number;
-    user_id?: string | null;
-    original_url: string;
-    shortened_code: string;
-    clicks: number;
-    craeted_at?: Date;
-    updated_at?: Date;
-    deleted_at?: Date;
-}
+export class UrlRepository {
 
-class UrlRepository {
-
-    async createUrl( user_id: string | null, original_url: string, shortened_code: string, clicks: number ): Promise<IUrl> {
+    async createUrl(user_id: number | null, original_url: string, shortened_code: string, clicks: number): Promise<IUrl> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -25,7 +14,7 @@ class UrlRepository {
         return result.rows[0];
     }
 
-    async findByShortCode( shortened_code: string ): Promise<IUrl> {
+    async findByShortCode(shortened_code: string): Promise<IUrl | null> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -35,7 +24,7 @@ class UrlRepository {
         return result.rows[0];
     }
 
-    async updateClicks( id: number, clicks: number ): Promise<IUrl> {
+    async updateClicks(id: number, clicks: number): Promise<IUrl> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -45,7 +34,7 @@ class UrlRepository {
         return result.rows[0];
     }
 
-    async findAllUrlsByUserId( user_id: string ): Promise<IUrl[]> {
+    async findAllUrlsByUserId(user_id: string): Promise<IUrl[] | null> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -55,7 +44,7 @@ class UrlRepository {
         return result.rows;
     }
 
-    async deleteUrlById( id: string ): Promise<IUrl> {
+    async deleteUrlById(id: string): Promise<IUrl> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -65,7 +54,7 @@ class UrlRepository {
         return result.rows[0];
     }
 
-    async findByUrlById( id: string ): Promise<IUrl> {
+    async findByUrlById(id: string): Promise<IUrl> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -75,7 +64,7 @@ class UrlRepository {
         return result.rows[0];
     }
 
-    async updateUrl( id: string, original_url: string ): Promise<IUrl> {
+    async updateUrl(id: string, original_url: string): Promise<IUrl> {
         const conn = await database.generateConnection();
 
         const result = await conn.query(`
@@ -86,5 +75,3 @@ class UrlRepository {
     }
 
 }
-
-export default UrlRepository;
