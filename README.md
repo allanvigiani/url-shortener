@@ -20,6 +20,8 @@
 
 ## Como rodar o projeto.
 
+Obs: É necessário ter o docker e o docker-compose instalado em sua máquina (Como instalar: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04-pt)
+
 Clone o repositório:
 ```sh
 git clone https://github.com/allanvigiani/url-shortener.git
@@ -35,7 +37,7 @@ sudo docker-compose build --no-cache
 sudo docker-compose up
 ```
 
-Exemplos que pode ser utilizado no .env
+Recomendação a ser utilizada no .env
 ```sh
 API_PORT_USERS=3000
 API_PORT_URL=3001
