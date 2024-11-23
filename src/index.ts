@@ -16,7 +16,9 @@ async function loadSwaggerDocs() {
 }
 
 async function startServer() {
-	new ApmService().startElasticService();
+	if (process.env.ELASTIC_APM_SERVICE_NAME) {
+		new ApmService().startElasticService();
+	}
 
 	const swaggerJsonDocs = await loadSwaggerDocs();
 	usersApp.use('/api-documentation', swaggerUi.serve, swaggerUi.setup(swaggerJsonDocs));
