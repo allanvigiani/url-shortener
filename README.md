@@ -54,7 +54,19 @@ POSTGRES_SSL='false'
 POSTGRES_URL="postgresql://urlshortener_owner:zjSv0tBMJg5e@ep-dry-shape-a5albbrl.us-east-2.aws.neon.tech/urlshortener?sslmode=require"
 
 BASE_URL=http://localhost:3001/url
+
+ELASTIC_APM_SECRET_TOKEN='YOUR_TOKEN'
+ELASTIC_APM_SERVER_URL='TOUR_URL'
+ELASTIC_APM_ENVIRONMENT='development'
+ELASTIC_APM_SERVICE_NAME='shortener_url'
 ```
+
+## Como configurar o Elastic
+- Criar uma conta em: https://www.elastic.co/pt/
+- Criar um novo deployment
+- Acessar o deployment criado
+- Clicar no componente de Obersabilidade
+- Criar um novo serviço APM, nesta etapa ele concederá todas as credencias necessárias para configurar no .env
 
 ## Pontos futuros para melhorias e novas funcionalidades.
 
