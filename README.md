@@ -83,4 +83,17 @@ ELASTIC_APM_SERVICE_NAME='shortener_url'
 - Utilização de loadbalancers para a distribuição de acessos.
 - Utilização de ferramentas para o monitoramento de desempenho como logs utilizando a New Relic ou Grafana e Prometheus para infraestrutura.
 
+## Pontos diferenciais feitos:
+
+- Utilização de Docker e docker-compose
+- Testes unitários com Jest
+- Documentação das APIS com Swagger
+- Observabilidade (Elastic)
+- Deploy em ambiente cloud (AWS)
+- Pontos de melhorias futuras
+- Validações de entrada de dados
+- Git tags
+- Código tolerante a falhas  
+
+
 
