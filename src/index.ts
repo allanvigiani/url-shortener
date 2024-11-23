@@ -3,10 +3,11 @@ import urlApp from './url';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 
-dotenv.config();
-
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { ApmService } from './observability/ApmService';
+
+dotenv.config();
 
 async function loadSwaggerDocs() {
 	const filePath = join(__dirname, './swagger.json');
@@ -15,6 +16,8 @@ async function loadSwaggerDocs() {
 }
 
 async function startServer() {
+	new ApmService().startElasticService();
+
 	const swaggerJsonDocs = await loadSwaggerDocs();
 	usersApp.use('/api-documentation', swaggerUi.serve, swaggerUi.setup(swaggerJsonDocs));
 
