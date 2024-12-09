@@ -1,6 +1,6 @@
-# Teste Técnico - Encurtador de URL![version](https://img.shields.io/badge/version-1.1-blue)
+# Encurtador de URL![version](https://img.shields.io/badge/version-1.1-blue)
 
-## Realizador do teste.
+## Desenvolvedor.
 
 - Allan Vigiani - vigianiallan@gmail.com
 
